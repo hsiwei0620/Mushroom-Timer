@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Time Tracker</title>
+<style>
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    input { padding: 5px; margin: 5px; }
+    button { padding: 8px 15px; }
+    #countdown { font-size: 30px; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<h2>時間記錄器</h2>
+
+<input id="minute" type="number" placeholder="分鐘">
+<input id="second" type="number" placeholder="秒">
+<input id="location" type="text" placeholder="地點 (例如 大竹)">
+<br>
+<button onclick="startTimer()">開始</button>
+
+<h3 id="result"></h3>
+<div id="countdown"></div>
+
+<script>
+let timer;
+
+function startTimer() {
+    clearInterval(timer);
+
+    let m = parseInt(document.getElementById("minute").value) || 0;
+    let s = parseInt(document.getElementById("second").value) || 0;
+    let location = document.getElementById("location").value;
+
+    // 原始時間 +5分鐘
+    let totalSeconds = m * 60 + s + (5 * 60);
+
+    // 顯示目標時間
+    document.getElementById("result").innerText =
+        `地點：${location} | 倒數 ${formatTime(totalSeconds)}`;
+
+    timer = setInterval(() => {
+        totalSeconds--;
+
+        document.getElementById("countdown").innerText =
+            formatTime(totalSeconds);
+
+        if (totalSeconds <= 0) {
+            clearInterval(timer);
+            alert(`時間到！地點：${location}`);
+        }
+    }, 1000);
+}
+
+function formatTime(sec) {
+    let m = Math.floor(sec / 60);
+    let s = sec % 60;
+    return `${m}:${s.toString().padStart(2,'0')}`;
+}
+</script>
+
+</body>
+</html>
