@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mushroom Timer</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: Arial, "Microsoft JhengHei", sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 24px;
+      color: #222;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #1f5cc8;
+      font-size: 34px;
+    }
+
+    .hint {
+      color: #666;
+      font-size: 15px;
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .input-area {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr) auto;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #1f5cc8;
+      box-shadow: 0 0 0 3px rgba(31, 92, 200, 0.15);
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 11px 16px;
+      font-size: 15px;
+      cursor: pointer;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .btn-add {
+      background: #1f5cc8;
+      color: white;
+    }
+
+    .btn-add:hover { background: #174aa3; }
+
+    .btn-danger {
+      background: #d93025;
+      color: white;
+    }
+
+    .btn-danger:hover { background: #b3261e; }
+
+    .btn-secondary {
+      background: #e8eefc;
+      color: #1f5cc8;
+    }
+
+    .btn-secondary:hover { background: #dce7ff; }
+
+    .btn-small {
+      padding: 7px 10px;
+      font-size: 13px;
+    }
+
+    .location-memory {
+      margin: 0 0 16px 0;
+      padding: 12px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+    }
+
+    .location-memory-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    .location-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .location-chip {
+      background: #e8eefc;
+      color: #1f5cc8;
+      border: 1px solid #d6e2ff;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .location-chip:hover { background: #dce7ff; }
+
+    .empty-location {
+      color: #888;
+      font-size: 14px;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 10px;
+      margin-bottom: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 12px 10px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f8fafc;
+      font-size: 14px;
+      color: #444;
+    }
+
+    .countdown {
+      font-size: 24px;
+      font-weight: bold;
+      color: #1f5cc8;
+      white-space: nowrap;
+    }
+
+    .warning {
+      color: #f29900;
+      animation: blink 1s infinite;
+    }
+
+    .done {
+      color: #d93025;
+      font-weight: bold;
+    }
+
+    .status-running {
+      color: #0f9d58;
+      font-weight: bold;
+    }
+
+    .status-warning {
+      color: #f29900;
+      font-weight: bold;
+    }
+
+    .status-done {
+      color: #d93025;
+      font-weight: bold;
+    }
+
+    small {
+      color: #444;
+      line-height: 1.6;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 12px; }
+      h1 { font-size: 28px; }
+      .input-area { grid-template-columns: 1fr 1fr; }
+      .input-area .full { grid-column: span 2; }
+      .top-actions { justify-content: flex-start; flex-wrap: wrap; }
+
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { display: none; }
+      tr {
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        margin-bottom: 12px;
+        padding: 10px;
+      }
+      td {
+        border: none;
+        padding: 7px 4px;
+      }
+      td::before {
+        content: attr(data-label) "：";
+        font-weight: bold;
+        color: #555;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Mushroom Timer</h1>
+
+    <div class="hint">
+      輸入一組時間與地點後，系統會自動加 5 分鐘並建立一筆獨立倒數資料。<br>
+      每筆資料都會各自倒數，剩餘時間會自動由短到長排序；剩 15 秒會提前提醒，時間到會再次提醒。
+    </div>
+
+    <div class="input-area">
+      <div>
+        <label for="minute">分鐘</label>
+        <input id="minute" type="number" min="0" placeholder="例如 10" />
+      </div>
+
+      <div>
+        <label for="second">秒</label>
+        <input id="second" type="number" min="0" max="59" placeholder="例如 18" />
+      </div>
+
+      <div class="full">
+        <label for="location">地點</label>
+        <input id="location" type="text" placeholder="例如 中正紀念堂" />
+      </div>
+
+      <div>
+        <label for="extraMinute">自動加分鐘</label>
+        <input id="extraMinute" type="number" min="0" value="5" />
+      </div>
+
+      <button class="btn-add full" onclick="addRecord()">新增倒數</button>
+    </div>
+
+    <div class="location-memory">
+      <div class="location-memory-title">常用地點（點一下可帶入地點欄位）</div>
+      <div id="locationButtons" class="location-buttons"></div>
+      <div style="margin-top: 10px;">
+        <button class="btn-secondary btn-small" onclick="clearLocationHistory()">清除地點記憶</button>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <button class="btn-secondary btn-small" onclick="requestNotificationPermission()">開啟桌面通知</button>
+      <button class="btn-danger btn-small" onclick="clearAllRecords()">清除全部</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>地點</th>
+          <th>原始時間</th>
+          <th>加總後時間</th>
+          <th>剩餘倒數</th>
+          <th>狀態</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="recordBody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    let records = JSON.parse(localStorage.getItem("timerRecords")) || [];
+    let nextId = Number(localStorage.getItem("timerNextId")) || 1;
+    let locationHistory = JSON.parse(localStorage.getItem("timerLocationHistory")) || [];
+
+    function saveRecords() {
+      localStorage.setItem("timerRecords", JSON.stringify(records));
+      localStorage.setItem("timerNextId", String(nextId));
+      localStorage.setItem("timerLocationHistory", JSON.stringify(locationHistory));
+    }
+
+    function addRecord() {
+      const minute = Number(document.getElementById("minute").value) || 0;
+      const second = Number(document.getElementById("second").value) || 0;
+      const location = document.getElementById("location").value.trim();
+      const extraMinute = Number(document.getElementById("extraMinute").value) || 0;
+
+      if (!location) {
+        alert("請輸入地點");
+        return;
+      }
+
+      if (second < 0 || second > 59) {
+        alert("秒數請輸入 0 到 59");
+        return;
+      }
+
+      if (minute === 0 && second === 0) {
+        alert("請輸入有效的時間");
+        return;
+      }
+
+      const originalSeconds = minute * 60 + second;
+      const totalSeconds = originalSeconds + extraMinute * 60;
+      const targetTime = Date.now() + totalSeconds * 1000;
+
+      records.push({
+        id: nextId++,
+        location: location,
+        originalSeconds: originalSeconds,
+        extraMinute: extraMinute,
+        totalSeconds: totalSeconds,
+        targetTime: targetTime,
+        notified: false,
+        preNotified: false
+      });
+
+      addLocationToHistory(location);
+      saveRecords();
+      renderRecords();
+
+      document.getElementById("minute").value = "";
+      document.getElementById("second").value = "";
+      document.getElementById("location").value = "";
+      document.getElementById("minute").focus();
+    }
+
+    function addLocationToHistory(location) {
+      const normalized = location.trim();
+      if (!normalized) return;
+
+      // 不分大小寫去重，但保留最新輸入的顯示文字
+      locationHistory = locationHistory.filter(x => x.toLowerCase() !== normalized.toLowerCase());
+      locationHistory.unshift(normalized);
+
+      // 最多保留 20 個常用地點，避免畫面按鈕太多
+      locationHistory = locationHistory.slice(0, 20);
+      saveRecords();
+      renderLocationButtons();
+    }
+
+    function renderLocationButtons() {
+      const container = document.getElementById("locationButtons");
+      if (!container) return;
+
+      container.innerHTML = "";
+
+      if (locationHistory.length === 0) {
+        container.innerHTML = '<span class="empty-location">目前還沒有常用地點，新增倒數後會自動記憶。</span>';
+        return;
+      }
+
+      locationHistory.forEach(location => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "location-chip";
+        btn.textContent = location;
+        btn.onclick = () => {
+          document.getElementById("location").value = location;
+          document.getElementById("minute").focus();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function renderRecords() {
+      const body = document.getElementById("recordBody");
+      body.innerHTML = "";
+
+      // 依剩餘倒數排序：未完成的由短到長；已完成的放最下面
+      const sortedRecords = [...records].sort((a, b) => {
+        const remainingA = a.targetTime - Date.now();
+        const remainingB = b.targetTime - Date.now();
+
+        const isDoneA = remainingA <= 0;
+        const isDoneB = remainingB <= 0;
+
+        if (isDoneA && !isDoneB) return 1;
+        if (!isDoneA && isDoneB) return -1;
+
+        return remainingA - remainingB;
+      });
+
+      sortedRecords.forEach((record, index) => {
+        const remaining = Math.ceil((record.targetTime - Date.now()) / 1000);
+        const isDone = remaining <= 0;
+        const isWarning = remaining > 0 && remaining <= 15;
+
+        // 剩 15 秒提前提醒，只提醒一次
+        if (isWarning && !record.preNotified) {
+          record.preNotified = true;
+          saveRecords();
+          notifyUser(record, true);
+        }
+
+        // 時間到正式提醒，只提醒一次
+        if (isDone && !record.notified) {
+          record.notified = true;
+          saveRecords();
+          notifyUser(record, false);
+        }
+
+        let countdownClass = "countdown";
+        if (isDone) countdownClass += " done";
+        else if (isWarning) countdownClass += " warning";
+
+        let statusText = "Running";
+        let statusClass = "status-running";
+        if (isDone) {
+          statusText = "Completed";
+          statusClass = "status-done";
+        } else if (isWarning) {
+          statusText = "Warning";
+          statusClass = "status-warning";
+        }
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td data-label="#">${index + 1}</td>
+          <td data-label="地點">${escapeHtml(record.location)}</td>
+          <td data-label="原始時間">${formatTime(record.originalSeconds)}</td>
+          <td data-label="加總後時間">
+            ${formatTime(record.totalSeconds)}<br>
+            <small>到期時間：${formatClock(record.targetTime)}</small>
+          </td>
+          <td data-label="剩餘倒數" class="${countdownClass}">
+            ${isDone ? "時間到" : formatTime(remaining)}
+          </td>
+          <td data-label="狀態" class="${statusClass}">${statusText}</td>
+          <td data-label="操作">
+            <button class="btn-secondary btn-small" onclick="restartRecord(${record.id})">重新開始</button>
+            <button class="btn-danger btn-small" onclick="deleteRecord(${record.id})">刪除</button>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function notifyUser(record, isEarly) {
+      const title = isEarly ? "即將到時間（15秒）" : "倒數時間到";
+      const message = isEarly
+        ? `即將到時間（15秒）！地點：${record.location}`
+        : `時間到！地點：${record.location}`;
+
+      alert(message);
+
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(title, {
+          body: `地點：${record.location}`
+        });
+      }
+    }
+
+    function restartRecord(id) {
+      const record = records.find(r => r.id === id);
+      if (!record) return;
+
+      record.targetTime = Date.now() + record.totalSeconds * 1000;
+      record.notified = false;
+      record.preNotified = false;
+
+      saveRecords();
+      renderRecords();
+    }
+
+    function deleteRecord(id) {
+      records = records.filter(r => r.id !== id);
+      saveRecords();
+      renderRecords();
+    }
+
+    function clearAllRecords() {
+      if (!confirm("確定要清除全部倒數紀錄嗎？")) return;
+      records = [];
+      saveRecords();
+      renderRecords();
+    }
+
+    function clearLocationHistory() {
+      if (!confirm("確定要清除全部地點記憶嗎？目前倒數資料不會被刪除。")) return;
+      locationHistory = [];
+      saveRecords();
+      renderLocationButtons();
+    }
+
+    function requestNotificationPermission() {
+      if (!("Notification" in window)) {
+        alert("這個瀏覽器不支援桌面通知");
+        return;
+      }
+
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          alert("桌面通知已開啟");
+        } else {
+          alert("尚未允許桌面通知，仍會使用彈跳視窗提醒");
+        }
+      });
+    }
+
+    function formatTime(seconds) {
+      seconds = Math.max(0, Math.floor(seconds));
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return `${m}分 ${String(s).padStart(2, "0")}秒`;
+    }
+
+    function formatClock(timestamp) {
+      const d = new Date(timestamp);
+      return d.toLocaleTimeString("zh-TW", { hour12: false });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.innerText = text;
+      return div.innerHTML;
+    }
+
+    // 每秒重新整理一次畫面、排序與倒數狀態
+    setInterval(renderRecords, 1000);
+    renderLocationButtons();
+    renderRecords();
+  </script>
+</body>
+</html>
