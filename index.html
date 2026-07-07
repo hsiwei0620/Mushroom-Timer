@@ -536,20 +536,18 @@
     function playBirdSound() {
       try {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        // 鳥鳴聲（快速跳躍）
+        // 鳥鳴聲（快速跳躍）— 每個音符用獨立的 oscillator，避免 start() 只能呼叫一次的限制
         const freqs = [1400, 1800, 1400];
         freqs.forEach((freq, idx) => {
-          oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + idx * 0.1);
-          gainNode.gain.setValueAtTime(0.25, audioContext.currentTime + idx * 0.1);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + idx * 0.1 + 0.08);
-          oscillator.start(audioContext.currentTime + idx * 0.1);
-          oscillator.stop(audioContext.currentTime + idx * 0.1 + 0.08);
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + idx * 0.12);
+          gainNode.gain.setValueAtTime(0.25, audioContext.currentTime + idx * 0.12);
+          gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + idx * 0.12 + 0.09);
+          oscillator.start(audioContext.currentTime + idx * 0.12);
+          oscillator.stop(audioContext.currentTime + idx * 0.12 + 0.09);
         });
       } catch (e) {
         console.log("音效播放失敗", e);
