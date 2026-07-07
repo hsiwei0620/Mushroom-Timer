@@ -201,6 +201,12 @@
       font-weight: bold;
     }
 
+    .completion-time {
+      font-size: 16px;
+      font-weight: bold;
+      color: #1f5cc8;
+    }
+
     small {
       color: #444;
       line-height: 1.6;
@@ -289,8 +295,7 @@
         <tr>
           <th>#</th>
           <th>地點</th>
-          <th>原始時間</th>
-          <th>加總後時間</th>
+          <th>完成時間</th>
           <th>剩餘倒數</th>
           <th>狀態</th>
           <th>操作</th>
@@ -450,17 +455,12 @@
         tr.innerHTML = `
           <td data-label="#">${index + 1}</td>
           <td data-label="地點">${escapeHtml(record.location)}</td>
-          <td data-label="原始時間">${formatTime(record.originalSeconds)}</td>
-          <td data-label="加總後時間">
-            ${formatTime(record.totalSeconds)}<br>
-            <small>到期時間：${formatClock(record.targetTime)}</small>
-          </td>
+          <td data-label="完成時間" class="completion-time">${formatClock(record.targetTime)}</td>
           <td data-label="剩餘倒數" class="${countdownClass}">
             ${isDone ? "時間到" : formatTime(remaining)}
           </td>
           <td data-label="狀態" class="${statusClass}">${statusText}</td>
           <td data-label="操作">
-            <button class="btn-secondary btn-small" onclick="restartRecord(${record.id})">重新開始</button>
             <button class="btn-danger btn-small" onclick="deleteRecord(${record.id})">刪除</button>
           </td>
         `;
@@ -469,30 +469,65 @@
     }
 
     function notifyUser(record, isEarly) {
-      const title = isEarly ? "即將到時間（15秒）" : "倒數時間到";
+      const title = isEarly ? "⏰ 即將到時間（15秒）" : "✓ 倒數時間到";
       const message = isEarly
         ? `即將到時間（15秒）！地點：${record.location}`
         : `時間到！地點：${record.location}`;
 
-      alert(message);
-
+      // 發送桌面通知（優先使用，可在其他標籤頁顯示）
       if ("Notification" in window && Notification.permission === "granted") {
         new Notification(title, {
-          body: `地點：${record.location}`
+          body: `地點：${record.location}`,
+          tag: isEarly ? `warning-${record.id}` : `done-${record.id}`,
+          badge: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%231f5cc8'/></svg>",
+          requireInteraction: true,  // 強制顯示，不會自動消失
+          vibrate: isEarly ? [200, 100, 200] : [300, 100, 300]  // 震動反饋
         });
+
+        // 播放音效（可選，某些瀏覽器可能受限制）
+        playNotificationSound(isEarly);
+      } else {
+        // 備選方案：若沒有通知權限，使用 alert
+        alert(message);
       }
     }
 
-    function restartRecord(id) {
-      const record = records.find(r => r.id === id);
-      if (!record) return;
+    function playNotificationSound(isEarly) {
+      try {
+        // 使用 Web Audio API 生成簡單的提示音
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
 
-      record.targetTime = Date.now() + record.totalSeconds * 1000;
-      record.notified = false;
-      record.preNotified = false;
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
 
-      saveRecords();
-      renderRecords();
+        if (isEarly) {
+          // 15秒提醒：較低的音調，兩次
+          oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.2);
+
+          // 第二次
+          oscillator.start(audioContext.currentTime + 0.3);
+          oscillator.stop(audioContext.currentTime + 0.5);
+        } else {
+          // 時間到：較高的音調，三次
+          const times = [0, 0.3, 0.6];
+          times.forEach((delay, idx) => {
+            oscillator.frequency.setValueAtTime(1000 + idx * 200, audioContext.currentTime + delay);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + delay);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + delay + 0.2);
+            oscillator.start(audioContext.currentTime + delay);
+            oscillator.stop(audioContext.currentTime + delay + 0.2);
+          });
+        }
+      } catch (e) {
+        // 若音效失敗，不影響通知本身
+        console.log("音效播放失敗", e);
+      }
     }
 
     function deleteRecord(id) {
