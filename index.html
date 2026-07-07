@@ -207,6 +207,26 @@
       color: #1f5cc8;
     }
 
+    .sound-select {
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fff;
+      color: #222;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .sound-select:hover {
+      border-color: #1f5cc8;
+    }
+
+    .sound-select:focus {
+      border-color: #1f5cc8;
+      box-shadow: 0 0 0 3px rgba(31, 92, 200, 0.15);
+    }
+
     small {
       color: #444;
       line-height: 1.6;
@@ -286,6 +306,13 @@
     </div>
 
     <div class="top-actions">
+      <select id="soundType" class="sound-select" onchange="saveSoundPreference()">
+        <option value="electronic">電子音（當前）</option>
+        <option value="bell">鐘聲</option>
+        <option value="alarm">警報聲</option>
+        <option value="chime">編鐘</option>
+        <option value="bird">鳥鳴聲</option>
+      </select>
       <button class="btn-secondary btn-small" onclick="requestNotificationPermission()">開啟桌面通知</button>
       <button class="btn-danger btn-small" onclick="clearAllRecords()">清除全部</button>
     </div>
@@ -309,6 +336,7 @@
     let records = JSON.parse(localStorage.getItem("timerRecords")) || [];
     let nextId = Number(localStorage.getItem("timerNextId")) || 1;
     let locationHistory = JSON.parse(localStorage.getItem("timerLocationHistory")) || [];
+    let soundType = localStorage.getItem("timerSoundType") || "electronic";
 
     function saveRecords() {
       localStorage.setItem("timerRecords", JSON.stringify(records));
@@ -494,7 +522,6 @@
 
     function playNotificationSound(isEarly) {
       try {
-        // 使用 Web Audio API 生成簡單的提示音
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
@@ -502,32 +529,100 @@
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
 
-        if (isEarly) {
-          // 15秒提醒：較低的音調，兩次
-          oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-          oscillator.start(audioContext.currentTime);
-          oscillator.stop(audioContext.currentTime + 0.2);
+        const soundType = localStorage.getItem("timerSoundType") || "electronic";
 
-          // 第二次
-          oscillator.start(audioContext.currentTime + 0.3);
-          oscillator.stop(audioContext.currentTime + 0.5);
-        } else {
-          // 時間到：較高的音調，三次
-          const times = [0, 0.3, 0.6];
-          times.forEach((delay, idx) => {
-            oscillator.frequency.setValueAtTime(1000 + idx * 200, audioContext.currentTime + delay);
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + delay);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + delay + 0.2);
-            oscillator.start(audioContext.currentTime + delay);
-            oscillator.stop(audioContext.currentTime + delay + 0.2);
+        if (soundType === "electronic") {
+          // 電子音（默認）
+          if (isEarly) {
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+            oscillator.start(audioContext.currentTime + 0.3);
+            oscillator.stop(audioContext.currentTime + 0.5);
+          } else {
+            const times = [0, 0.3, 0.6];
+            times.forEach((delay, idx) => {
+              oscillator.frequency.setValueAtTime(1000 + idx * 200, audioContext.currentTime + delay);
+              gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + delay);
+              gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + delay + 0.2);
+              oscillator.start(audioContext.currentTime + delay);
+              oscillator.stop(audioContext.currentTime + delay + 0.2);
+            });
+          }
+        } else if (soundType === "bell") {
+          // 鐘聲（類似真實鈴聲）
+          oscillator.type = "sine";
+          oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
+          gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + isEarly ? 0.6 : 1.2);
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + (isEarly ? 0.6 : 1.2));
+        } else if (soundType === "alarm") {
+          // 警報聲（快速上升下降）
+          if (isEarly) {
+            // 15秒警告：兩次上升聲
+            for (let i = 0; i < 2; i++) {
+              oscillator.frequency.setValueAtTime(600 + i * 50, audioContext.currentTime + i * 0.25);
+              oscillator.frequency.linearRampToValueAtTime(1000 + i * 50, audioContext.currentTime + i * 0.25 + 0.1);
+              gainNode.gain.setValueAtTime(0.35, audioContext.currentTime + i * 0.25);
+              gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.25 + 0.15);
+              oscillator.start(audioContext.currentTime + i * 0.25);
+              oscillator.stop(audioContext.currentTime + i * 0.25 + 0.15);
+            }
+          } else {
+            // 時間到：三次上升聲
+            for (let i = 0; i < 3; i++) {
+              oscillator.frequency.setValueAtTime(500 + i * 100, audioContext.currentTime + i * 0.25);
+              oscillator.frequency.linearRampToValueAtTime(1200 + i * 100, audioContext.currentTime + i * 0.25 + 0.15);
+              gainNode.gain.setValueAtTime(0.4, audioContext.currentTime + i * 0.25);
+              gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.25 + 0.2);
+              oscillator.start(audioContext.currentTime + i * 0.25);
+              oscillator.stop(audioContext.currentTime + i * 0.25 + 0.2);
+            }
+          }
+        } else if (soundType === "chime") {
+          // 編鐘風格（低頻變化）
+          const freqs = [784, 988]; // G5, B5
+          const baseTime = isEarly ? 0.4 : 0.6;
+          freqs.forEach((freq, idx) => {
+            oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + idx * 0.2);
+            gainNode.gain.setValueAtTime(0.35, audioContext.currentTime + idx * 0.2);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + idx * 0.2 + baseTime);
+            oscillator.start(audioContext.currentTime + idx * 0.2);
+            oscillator.stop(audioContext.currentTime + idx * 0.2 + baseTime);
           });
+        } else if (soundType === "bird") {
+          // 鳥鳴聲（快速跳躍）
+          if (isEarly) {
+            const freqs = [1400, 1800, 1400];
+            freqs.forEach((freq, idx) => {
+              oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + idx * 0.1);
+              gainNode.gain.setValueAtTime(0.25, audioContext.currentTime + idx * 0.1);
+              gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + idx * 0.1 + 0.08);
+              oscillator.start(audioContext.currentTime + idx * 0.1);
+              oscillator.stop(audioContext.currentTime + idx * 0.1 + 0.08);
+            });
+          } else {
+            const freqs = [1200, 1600, 2000, 1600, 1200];
+            freqs.forEach((freq, idx) => {
+              oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + idx * 0.12);
+              gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + idx * 0.12);
+              gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + idx * 0.12 + 0.1);
+              oscillator.start(audioContext.currentTime + idx * 0.12);
+              oscillator.stop(audioContext.currentTime + idx * 0.12 + 0.1);
+            });
+          }
         }
       } catch (e) {
-        // 若音效失敗，不影響通知本身
         console.log("音效播放失敗", e);
       }
+    }
+
+    function saveSoundPreference() {
+      soundType = document.getElementById("soundType").value;
+      localStorage.setItem("timerSoundType", soundType);
     }
 
     function deleteRecord(id) {
@@ -587,6 +682,9 @@
     setInterval(renderRecords, 1000);
     renderLocationButtons();
     renderRecords();
+    
+    // 初始化聲音偏好
+    document.getElementById("soundType").value = soundType;
   </script>
 </body>
 </html>
