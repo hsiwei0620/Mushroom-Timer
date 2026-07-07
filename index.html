@@ -441,9 +441,10 @@
       sortedRecords.forEach((record, index) => {
         const remaining = Math.ceil((record.targetTime - Date.now()) / 1000);
         const isDone = remaining <= 0;
+        const isWarning = remaining > 0 && remaining <= 15;
 
         // 從 15 秒開始，每秒發出鳥鳴聲通知
-        if (remaining > 0 && remaining <= 15) {
+        if (isWarning) {
           playBirdSound();
         }
 
