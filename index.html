@@ -19,27 +19,34 @@
       max-width: 1180px;
       margin: 0 auto;
       background: #fff;
-      border-radius: 14px;
-      padding: 24px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.09);
     }
 
     h1 {
       margin-top: 0;
-      color: #1f5cc8;
-      font-size: 34px;
+      background: linear-gradient(135deg, #1f5cc8 0%, #174aa3 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 36px;
     }
 
     .hint {
       color: #666;
       font-size: 15px;
-      margin-bottom: 16px;
-      line-height: 1.6;
+      margin-bottom: 20px;
+      line-height: 1.7;
+      padding: 12px 16px;
+      background: #f8fbff;
+      border-left: 4px solid #1f5cc8;
+      border-radius: 6px;
     }
 
     .input-area {
       display: grid;
-      grid-template-columns: repeat(4, 1fr) auto;
+      grid-template-columns: 2fr 1fr 1fr auto;
       gap: 12px;
       align-items: end;
       margin-bottom: 14px;
@@ -53,62 +60,97 @@
       font-weight: bold;
     }
 
-    input {
+    input, select {
       width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      padding: 11px 14px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
       font-size: 16px;
       outline: none;
+      background: #fff;
+      color: #222;
+      transition: all 0.2s ease;
     }
 
-    input:focus {
+    input:focus, select:focus {
       border-color: #1f5cc8;
       box-shadow: 0 0 0 3px rgba(31, 92, 200, 0.15);
     }
 
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231f5cc8' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 20px;
+      padding-right: 36px;
+    }
+
+    select option {
+      padding: 8px;
+    }
+
     button {
       border: none;
-      border-radius: 8px;
-      padding: 11px 16px;
+      border-radius: 10px;
+      padding: 11px 18px;
       font-size: 15px;
       cursor: pointer;
       font-weight: bold;
       white-space: nowrap;
+      transition: all 0.2s ease;
     }
 
     .btn-add {
-      background: #1f5cc8;
+      background: linear-gradient(135deg, #1f5cc8 0%, #174aa3 100%);
       color: white;
+      box-shadow: 0 4px 12px rgba(31, 92, 200, 0.3);
     }
 
-    .btn-add:hover { background: #174aa3; }
+    .btn-add:hover {
+      background: linear-gradient(135deg, #174aa3 0%, #0d3a7a 100%);
+      box-shadow: 0 6px 16px rgba(31, 92, 200, 0.4);
+      transform: translateY(-2px);
+    }
 
     .btn-danger {
-      background: #d93025;
+      background: linear-gradient(135deg, #d93025 0%, #c5221f 100%);
       color: white;
+      box-shadow: 0 2px 8px rgba(217, 48, 37, 0.2);
     }
 
-    .btn-danger:hover { background: #b3261e; }
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #c5221f 0%, #a71f1a 100%);
+      box-shadow: 0 4px 12px rgba(217, 48, 37, 0.3);
+      transform: translateY(-1px);
+    }
 
     .btn-secondary {
-      background: #e8eefc;
+      background: linear-gradient(135deg, #e8eefc 0%, #dce7ff 100%);
       color: #1f5cc8;
+      box-shadow: 0 2px 8px rgba(31, 92, 200, 0.1);
+      border: 1px solid #d6e2ff;
     }
 
-    .btn-secondary:hover { background: #dce7ff; }
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #dce7ff 0%, #cfe0ff 100%);
+      box-shadow: 0 4px 12px rgba(31, 92, 200, 0.2);
+      transform: translateY(-1px);
+    }
 
     .btn-small {
-      padding: 7px 10px;
+      padding: 8px 12px;
       font-size: 13px;
+      border-radius: 8px;
     }
 
     .location-memory {
       margin: 0 0 16px 0;
-      padding: 12px;
-      background: #f8fafc;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, #f8fafc 0%, #f0f7ff 100%);
+      border: 1px solid #e0e8ff;
+      border-radius: 12px;
     }
 
     .location-memory-title {
@@ -125,17 +167,23 @@
     }
 
     .location-chip {
-      background: #e8eefc;
+      background: linear-gradient(135deg, #e8eefc 0%, #dce7ff 100%);
       color: #1f5cc8;
-      border: 1px solid #d6e2ff;
+      border: 1px solid #d0ddff;
       border-radius: 999px;
-      padding: 7px 12px;
+      padding: 8px 14px;
       font-size: 14px;
       cursor: pointer;
       font-weight: bold;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(31, 92, 200, 0.1);
     }
 
-    .location-chip:hover { background: #dce7ff; }
+    .location-chip:hover {
+      background: linear-gradient(135deg, #dce7ff 0%, #cfe0ff 100%);
+      box-shadow: 0 4px 10px rgba(31, 92, 200, 0.2);
+      transform: translateY(-2px);
+    }
 
     .empty-location {
       color: #888;
@@ -146,27 +194,29 @@
       display: flex;
       gap: 10px;
       justify-content: flex-end;
-      margin-top: 10px;
-      margin-bottom: 14px;
+      margin-top: 14px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 12px;
+      margin-top: 16px;
     }
 
     th, td {
       border-bottom: 1px solid #e5e7eb;
-      padding: 12px 10px;
+      padding: 14px 12px;
       text-align: left;
       vertical-align: middle;
     }
 
     th {
-      background: #f8fafc;
+      background: linear-gradient(135deg, #f8fafc 0%, #f0f7ff 100%);
       font-size: 14px;
-      color: #444;
+      color: #333;
+      font-weight: 600;
     }
 
     .countdown {
@@ -207,26 +257,6 @@
       color: #1f5cc8;
     }
 
-    .sound-select {
-      padding: 10px 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 14px;
-      background: #fff;
-      color: #222;
-      cursor: pointer;
-      outline: none;
-    }
-
-    .sound-select:hover {
-      border-color: #1f5cc8;
-    }
-
-    .sound-select:focus {
-      border-color: #1f5cc8;
-      box-shadow: 0 0 0 3px rgba(31, 92, 200, 0.15);
-    }
-
     small {
       color: #444;
       line-height: 1.6;
@@ -240,8 +270,7 @@
     @media (max-width: 760px) {
       body { padding: 12px; }
       h1 { font-size: 28px; }
-      .input-area { grid-template-columns: 1fr 1fr; }
-      .input-area .full { grid-column: span 2; }
+      .input-area { grid-template-columns: 1fr; }
       .top-actions { justify-content: flex-start; flex-wrap: wrap; }
 
       table, thead, tbody, th, td, tr { display: block; }
@@ -269,32 +298,31 @@
     <h1>Mushroom Timer</h1>
 
     <div class="hint">
-      輸入一組時間與地點後，系統會自動加 5 分鐘並建立一筆獨立倒數資料。<br>
-      每筆資料都會各自倒數，剩餘時間會自動由短到長排序；剩 15 秒會提前提醒，時間到會再次提醒。
+      輸入地點，然後選擇分鐘和秒數，系統會自動加 5 分鐘。<br>
+      每筆資料獨立倒數，剩餘時間由短到長排序；當倒數進入最後 15 秒，每秒會發出鳥鳴聲提醒。
     </div>
 
     <div class="input-area">
       <div>
-        <label for="minute">分鐘</label>
-        <input id="minute" type="number" min="0" placeholder="例如 10" />
-      </div>
-
-      <div>
-        <label for="second">秒</label>
-        <input id="second" type="number" min="0" max="59" placeholder="例如 18" />
-      </div>
-
-      <div class="full">
         <label for="location">地點</label>
         <input id="location" type="text" placeholder="例如 中正紀念堂" />
       </div>
 
       <div>
-        <label for="extraMinute">自動加分鐘</label>
-        <input id="extraMinute" type="number" min="0" value="5" />
+        <label for="minute">分鐘</label>
+        <select id="minute">
+          <option value="">選擇</option>
+        </select>
       </div>
 
-      <button class="btn-add full" onclick="addRecord()">新增倒數</button>
+      <div>
+        <label for="second">秒</label>
+        <select id="second">
+          <option value="">選擇</option>
+        </select>
+      </div>
+
+      <button class="btn-add" onclick="addRecord()">新增倒數</button>
     </div>
 
     <div class="location-memory">
@@ -340,20 +368,15 @@
       const minute = Number(document.getElementById("minute").value) || 0;
       const second = Number(document.getElementById("second").value) || 0;
       const location = document.getElementById("location").value.trim();
-      const extraMinute = Number(document.getElementById("extraMinute").value) || 0;
+      const extraMinute = 5; // 固定為 5 分鐘
 
       if (!location) {
         alert("請輸入地點");
         return;
       }
 
-      if (second < 0 || second > 59) {
-        alert("秒數請輸入 0 到 59");
-        return;
-      }
-
       if (minute === 0 && second === 0) {
-        alert("請輸入有效的時間");
+        alert("請選擇有效的時間");
         return;
       }
 
@@ -379,7 +402,7 @@
       document.getElementById("minute").value = "";
       document.getElementById("second").value = "";
       document.getElementById("location").value = "";
-      document.getElementById("minute").focus();
+      document.getElementById("location").focus();
     }
 
     function addLocationToHistory(location) {
@@ -590,6 +613,23 @@
     setInterval(renderRecords, 1000);
     renderLocationButtons();
     renderRecords();
+
+    // 初始化分鐘和秒的下拉選項
+    const minuteSelect = document.getElementById("minute");
+    for (let i = 0; i <= 59; i++) {
+      const option = document.createElement("option");
+      option.value = i;
+      option.textContent = i + " 分";
+      minuteSelect.appendChild(option);
+    }
+
+    const secondSelect = document.getElementById("second");
+    for (let i = 0; i <= 59; i++) {
+      const option = document.createElement("option");
+      option.value = i;
+      option.textContent = i + " 秒";
+      secondSelect.appendChild(option);
+    }
   </script>
 </body>
 </html>
